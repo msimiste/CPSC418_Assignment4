@@ -11,6 +11,9 @@ import javax.crypto.spec.*;
  * @version 1.0, October 23, 2013
  */
 public class RSATool {
+	
+	//PrimeUtil
+	private PrimeUtil primUtil = new PrimeUtil (1023, false);
     // OAEP constants
     private final static int K = 128;   // size of RSA modulus in bytes
     private final static int K0 = 16;  // K0 in bytes
@@ -23,6 +26,7 @@ public class RSATool {
     // TODO:  add whatever additional variables that are required to implement 
     //    Chinese Remainder decryption as described in Problem 2
     private BigInteger d_p, d_q, x, y;
+    private BigInteger totient_n;
 
     // SecureRandom for OAEP and key generation
     private SecureRandom rnd;
@@ -137,9 +141,37 @@ public class RSATool {
 	d = p = q = null;
 
 	// TODO:  initialize RSA decryption variables here
+	
+	p = set_p();
+	q = set_q();
+	//set_n(p,q);
+	
+	
     }
 
 
+    public BigInteger set_p(){
+    	this.p = PrimeUtil.getPrime();
+    	return p;
+    }
+    
+    public BigInteger set_q(){
+    	this.q = PrimeUtil.getPrime();
+    	return q;
+    }
+    
+    public BigInteger set_n(BigInteger p, BigInteger q){
+    	this.n = p.multiply(q);
+    	return n;
+    }
+    
+    public BigInteger setTotient_N(){
+    	BigInteger p_min1 = this.p.subtract(BigInteger.ONE);
+    	BigInteger q_min1 = this.q.subtract(BigInteger.ONE);
+    	
+    	this.totient_n = p_min1.multiply(q_min1);
+    	return this.totient_n;
+    }
 
     public BigInteger get_n() {
 	return n;
