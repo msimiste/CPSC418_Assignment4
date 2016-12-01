@@ -62,9 +62,12 @@ public class PrimeUtil {
 	}
 
 	//TODO fill this in if required, delete otherwise
-	public static BigInteger euclidAlg(){
-		return BigInteger.ONE;
-	}
+	public static BigInteger[] euclidAlg(BigInteger A, BigInteger B){
+	
+		A.gcd(B);
+		BigInteger[] arr = new BigInteger[4];
+		return arr;
+		}
 	
 	public static BigInteger getExponent(BigInteger pMinus2) {
 		Random rand = new Random(System.currentTimeMillis());
