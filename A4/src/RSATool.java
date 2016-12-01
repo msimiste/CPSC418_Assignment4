@@ -175,15 +175,28 @@ public class RSATool {
 		int K1bits = BigInteger.valueOf(K1).bitLength();
 		byte[] K1_zeros = new byte[K1bits];
 		byte[] mAppend = new byte[plaintext.length + K1_zeros.length];
-		byte[] s = new byte[mAppend.length];
 		System.arraycopy(plaintext, 0, mAppend, 0, plaintext.length);
+		byte[] s = xOr(mAppend,G_r);
+		byte[] H_s = H(s);
+		byte[] t = xOr(r.toByteArray(),H_s);
+		//ToDO check and see if s||t > N, if so return to step 1, 
+		//Determine how to implement this logic
+		byte[] sAppend_t = new byte[s.length + t.length];
+		System.arraycopy(s, 0, sAppend_t, 0, s.length);
+		System.arraycopy(t, 0, sAppend_t, s.length, t.length);
+		BigInteger sApp_t = new BigInteger(sAppend_t);
+		
+		byte[] C = sApp_t.modPow(e, totient_n).toByteArray();
+		
 		System.out.println("Mappend: " + mAppend.length);
 		System.out.println("G(r): " +G_r.length);
 		
 		//3 Compute t = r XOR H(s)
-		//4 RSA-Encrypt (s||t) i.e. computer C = (s||t)^e (mod N)
+			
+		
+		//4 RSA-Encrypt (s||t) i.e. compute C = (s||t)^e (mod N)
 		// statement)
-		return plaintext;
+		return C;
 	}
 
 	/**
@@ -210,6 +223,19 @@ public class RSATool {
 		// TODO: implement RSA-OAEP encryption here (replace following return
 		// statement)
 		return ciphertext;
+	}
+	
+	private byte[] xOr(byte[] first, byte[] second){
+		byte[] output = new byte[first.length];
+		if(first.length == second.length){
+			for(int i = 0; i < output.length; i++){
+				output[i] = (byte) (first[i] ^ second[i]);
+			}
+		}
+		else{
+			return null;
+		}
+		return output;
 	}
 	
 	private void initializeValues() {
