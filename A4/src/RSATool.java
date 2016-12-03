@@ -23,7 +23,8 @@ public class RSATool {
 	private final static int K1 = 16; // K1 in bytes
 
 	// RSA key data
-	private BigInteger n;
+	private BigInteger N;
+	private int n;
 	private BigInteger e, d, p, q;
 
 	// TODO: add whatever additional variables that are required to implement
@@ -115,7 +116,7 @@ public class RSATool {
 
 		// TODO: include key generation implementation here (remove init of d)
 		d = BigInteger.ONE;
-		n = BigInteger.ONE;
+		N = BigInteger.ONE;
 		e = BigInteger.ONE;
 
 		initializeValues();
@@ -134,7 +135,7 @@ public class RSATool {
 		// initialize random number generator
 		rnd = new SecureRandom();
 
-		n = new_n;
+		N = new_n;
 		e = new_e;
 
 		d = p = q = null;
@@ -167,18 +168,19 @@ public class RSATool {
 		// TODO: implement RSA-OAEP encryption here (replace following return
 		
 		//1 Generate a random K0-bit number r
-		int KObits = BigInteger.valueOf(K0).bitLength();
-		BigInteger r = new BigInteger(KObits,rnd);
+		//int KObits = BigInteger.valueOf(K0).bitLength();
+		BigInteger r = new BigInteger(K0,rnd);
+		byte[] rBytes = r.toByteArray();
 				
 		//2 Compute s = (M||0^K1) XOR G(r)
-		byte[] G_r = G(r.toByteArray());
-		int K1bits = BigInteger.valueOf(K1).bitLength();
-		byte[] K1_zeros = new byte[K1bits];
-		byte[] mAppend = new byte[plaintext.length + K1_zeros.length];
+		byte[] G_r = G(rBytes);
+		//int K1bits = BigInteger.valueOf(K1).bitLength();
+		//byte[] K1_zeros = new byte[K1bits];
+		byte[] mAppend = new byte[plaintext.length + K-K0-K1];
 		System.arraycopy(plaintext, 0, mAppend, 0, plaintext.length);
 		byte[] s = xOr(mAppend,G_r);
 		byte[] H_s = H(s);
-		byte[] t = xOr(r.toByteArray(),H_s);
+		byte[] t = xOr(rBytes,H_s);
 		//ToDO check and see if s||t > N, if so return to step 1, 
 		//Determine how to implement this logic
 		byte[] sAppend_t = new byte[s.length + t.length];
@@ -186,7 +188,7 @@ public class RSATool {
 		System.arraycopy(t, 0, sAppend_t, s.length, t.length);
 		BigInteger sApp_t = new BigInteger(sAppend_t);
 		
-		byte[] C = sApp_t.modPow(e, totient_n).toByteArray();
+		byte[] C = sApp_t.modPow(e, N).toByteArray();
 		
 		System.out.println("Mappend: " + mAppend.length);
 		System.out.println("G(r): " +G_r.length);
@@ -222,7 +224,23 @@ public class RSATool {
 
 		// TODO: implement RSA-OAEP encryption here (replace following return
 		// statement)
-		return ciphertext;
+		
+		BigInteger C = new BigInteger(ciphertext);
+		//Step1 compute s||t
+		byte[] s_append_t = C.modPow(d, N).toByteArray();
+		byte[] s = new byte[n + K1];
+		
+		byte[] t = new byte[K0];
+		System.arraycopy(s_append_t, 0, s, 0, n);
+		System.arraycopy(s_append_t, n+1, t,0, K0);
+		
+		byte[] H_s = H(s);
+		byte[] u = xOr(t,H_s);
+		byte[] G_u = G(u);
+		byte[] v = xOr(s,G_u);
+		
+		//do some logic here to check v
+		return v;
 	}
 	
 	private byte[] xOr(byte[] first, byte[] second){
@@ -241,7 +259,7 @@ public class RSATool {
 	private void initializeValues() {
 		p = set_p();
 		q = set_q();
-		n = set_n(p, q);
+		N = set_N(p, q);
 		totient_n = this.setTotient_N();
 		e = set_e();
 		d = e.modInverse(totient_n);
@@ -257,9 +275,13 @@ public class RSATool {
 		return q;
 	}
 
-	private BigInteger set_n(BigInteger p, BigInteger q) {
-		this.n = p.multiply(q);
-		return n;
+	private BigInteger set_N(BigInteger p, BigInteger q) {
+		this.N = p.multiply(q);
+		return N;
+	}
+	
+	private void set_n(byte[] in){
+		n = in.length;
 	}
 
 	private BigInteger setTotient_N() {
@@ -286,8 +308,8 @@ public class RSATool {
 		return likely_e;
 	}
 
-	public BigInteger get_n() {
-		return n;
+	public BigInteger get_N() {
+		return N;
 	}
 
 	public BigInteger get_e() {

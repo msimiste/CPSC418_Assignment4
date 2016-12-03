@@ -87,8 +87,8 @@ public class ServerThread extends Thread
 
 	// Send public key to client
 	debug("Sending n to client");
-	BigInteger n = RSA.get_n();
-	byte[] encodedn = n.toByteArray();
+	BigInteger N = RSA.get_N();
+	byte[] encodedn = N.toByteArray();
 	try {
 	    CryptoUtilities.send(encodedn,out);
 	}
@@ -97,7 +97,7 @@ public class ServerThread extends Thread
 	    close();
 	    return;
 	}
-	debug("Sent n = " + n);
+	debug("Sent n = " + N);
 
 	debug("Sending e to client");
 	BigInteger e = RSA.get_e();
