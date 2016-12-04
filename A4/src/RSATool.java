@@ -171,12 +171,13 @@ public class RSATool {
 		
 		//1 Generate a random K0-bit number r
 		byte[] r = new byte[K0];
-		rnd.nextBytes(r);;
+		rnd.nextBytes(r);
 						
 		//2 Compute s = (M||0^K1) XOR G(r)
 		
 		//set up G(r)
 		byte[] G_r = G(r);
+		
 		//set up M||0^K1
 		byte[] mAppend = new byte[plaintext.length + K1];
 		System.arraycopy(plaintext, 0, mAppend, 0, plaintext.length);
@@ -184,7 +185,7 @@ public class RSATool {
 		//Compute s = (M||0^K1) XOR G(r)
 		byte[] s = new BigInteger(mAppend).xor(new BigInteger(G_r)).toByteArray();		
 		debug("Encrypt s has :"+s.length*8 +" bits");
-		debug("n+ K1 = " + n+K1);
+		debug("n+ K1 = " + (n+K1));
 		
 		//3 Compute t = r xOr H(s)
 		byte[] H_s = H(s);
@@ -192,16 +193,20 @@ public class RSATool {
 		
 		//ToDO check and see if s||t > N, if so return to step 1, 
 		//Determine how to implement this logic
-		byte[] sAppend_t = new byte[s.length + t.length];
+		byte[] sAppend_t = new byte[s.length + t.length];		
 		
 		
-		
+		// Append t to s, ie create s||t
 		System.arraycopy(s, 0, sAppend_t, 0, s.length);
 		System.arraycopy(t, 0, sAppend_t, s.length, t.length);
 		
-		BigInteger sApp_t = new BigInteger(sAppend_t);
-		
+		BigInteger sApp_t = new BigInteger(sAppend_t).abs();
+		debug("\n");
+		debug("Value of s||t: " + sApp_t);
+		debug("Value of N: " + N);
+		debug("\n");
 		debug("Encrypt s||t has: " + sAppend_t.length*8 +" bits");
+		debug("\n");
 		debug("Pre-Encryption s||t : "+CryptoUtilities.toHexString(sAppend_t));
 		
 		//4 RSA-Encrypt (s||t) i.e. compute C = (s||t)^e (mod N)
@@ -210,14 +215,22 @@ public class RSATool {
 		//just a check, remove from final version
 		byte[] C_prim = new BigInteger(C).modPow(d, N).toByteArray();
 		
+		BigInteger modInvTest = e.multiply(d).mod(totient_n);
+		debug("\n");
+		System.out.println("Mod Inverse Test: " + modInvTest);
+		debug("\n");
 		System.out.println("Mappend: " + mAppend.length);
+		debug("\n");
 		System.out.println("G(r): " +G_r.length);
 		
-		debug("Encrypt C' has: " + C_prim.length*8 +" bits");		
+		debug("Encrypt C' has: " + C_prim.length*8 +" bits");
+		debug("\n");
 		
 		// statement)
 		debug("Encypted: " + CryptoUtilities.toHexString(C));
-		debug("\nC prime :" + CryptoUtilities.toHexString(C_prim));
+		debug("\n");
+		debug("\nC prime (C^d (mod N): " + CryptoUtilities.toHexString(C_prim));
+		debug("\n");
 		return C;
 	}
 
@@ -247,7 +260,13 @@ public class RSATool {
 		// statement)
 		
 		BigInteger C = new BigInteger(ciphertext);
-		byte[] testing = C.toByteArray();
+		BigInteger decSappT = C.modPow(d, N);
+		debug("\n");
+		debug("Cipher Text^d (mod N) as big int: "+decSappT);
+		debug("\n");
+		debug("Cipher Text as Big int: " + C);
+		debug("\n");
+		byte[] testing = new BigInteger(ciphertext).modPow(d,N).toByteArray();// C.toByteArray();
 		
 		debug("Ouputting Big Int C as bytes: " + CryptoUtilities.toHexString(testing));
 		//Step1 compute s||t
@@ -286,10 +305,10 @@ public class RSATool {
 	}*/
 	
 	private void initializeValues() {
-		//p = set_p();
-		//q = set_q();
-		p = BigInteger.valueOf(11);
-		q = BigInteger.valueOf(2);
+		p = set_p();
+		q = set_q();
+		//p = BigInteger.valueOf(11);
+		//q = BigInteger.valueOf(2);
 		N = set_N(p, q);
 		totient_n = this.setTotient_N();
 		e = set_e();
