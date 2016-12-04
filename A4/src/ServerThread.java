@@ -165,6 +165,9 @@ public class ServerThread extends Thread
 	try {
 	    debug("Receiving output file name");
 	    outfilename = new String(CryptoUtilities.receiveAndDecrypt(key,in));
+	   /* byte[] input = new byte[2048];
+	    in.read(input);
+	    outfilename = new String(RSA.decrypt(input));*/
 	    debug("Got file name = " + outfilename);
 	}
 	catch (IOException e) {
