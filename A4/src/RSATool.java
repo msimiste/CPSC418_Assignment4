@@ -141,7 +141,7 @@ public class RSATool {
 		d = p = q = null;
 
 		// TODO: initialize RSA decryption variables here		
-		initializeValues();		
+		//initializeValues();		
 	}
 
 	
@@ -159,6 +159,12 @@ public class RSATool {
 	 */
 	public byte[] encrypt(byte[] plaintext) {
 		debug("In RSA encrypt");
+		
+		//debug("d: " + d);
+		//debug("n: " + n);
+		debug("N: " + N);
+		debug("e: " + e);
+		debug("\n");
 
 		// make sure plaintext fits into one block
 		if (plaintext.length > K - K0 - K1)
@@ -172,7 +178,10 @@ public class RSATool {
 		//1 Generate a random K0-bit number r
 		byte[] r = new byte[K0];
 		rnd.nextBytes(r);
-						
+		
+		debug("\n");
+		debug("Outputting r in bytes: " + CryptoUtilities.toHexString(r));
+		debug("\n");		
 		//2 Compute s = (M||0^K1) XOR G(r)
 		
 		//set up G(r)
@@ -185,7 +194,7 @@ public class RSATool {
 		//Compute s = (M||0^K1) XOR G(r)
 		byte[] s = new BigInteger(mAppend).xor(new BigInteger(G_r)).toByteArray();		
 		debug("Encrypt s has :"+s.length*8 +" bits");
-		debug("n+ K1 = " + (n+K1));
+		////debug("n+ K1 = " + (n+K1));
 		
 		//3 Compute t = r xOr H(s)
 		byte[] H_s = H(s);
@@ -213,23 +222,23 @@ public class RSATool {
 		byte[] C = sApp_t.modPow(e, N).toByteArray();
 		
 		//just a check, remove from final version
-		byte[] C_prim = new BigInteger(C).modPow(d, N).toByteArray();
+		//byte[] C_prim = new BigInteger(C).modPow(d, N).toByteArray();
 		
-		BigInteger modInvTest = e.multiply(d).mod(totient_n);
+		//BigInteger modInvTest = e.multiply(d).mod(totient_n);
 		debug("\n");
-		System.out.println("Mod Inverse Test: " + modInvTest);
+		//System.out.println("Mod Inverse Test: " + modInvTest);
 		debug("\n");
 		System.out.println("Mappend: " + mAppend.length);
 		debug("\n");
 		System.out.println("G(r): " +G_r.length);
 		
-		debug("Encrypt C' has: " + C_prim.length*8 +" bits");
+		//debug("Encrypt C' has: " + C_prim.length*8 +" bits");
 		debug("\n");
 		
 		// statement)
 		debug("Encypted: " + CryptoUtilities.toHexString(C));
 		debug("\n");
-		debug("\nC prime (C^d (mod N): " + CryptoUtilities.toHexString(C_prim));
+		//debug("\nC prime (C^d (mod N): " + CryptoUtilities.toHexString(C_prim));
 		debug("\n");
 		return C;
 	}
@@ -249,6 +258,16 @@ public class RSATool {
 	 */
 	public byte[] decrypt(byte[] ciphertext) {
 		debug("In RSA decrypt");
+		debug("d: " + d);
+		debug("n: " + n);
+		debug("N: " + N);
+		debug("e: " + e);
+		debug("\n");
+		
+		BigInteger modInv = e.multiply(d).mod(totient_n);
+		debug("mod inverse: " + modInv);
+		debug("\n");
+		
 		debug("Pre-Decryption: " + CryptoUtilities.toHexString(ciphertext));
 
 		// make sure class is initialized for decryption
@@ -259,33 +278,52 @@ public class RSATool {
 		// TODO: implement RSA-OAEP encryption here (replace following return
 		// statement)
 		
-		BigInteger C = new BigInteger(ciphertext);
-		BigInteger decSappT = C.modPow(d, N);
-		debug("\n");
-		debug("Cipher Text^d (mod N) as big int: "+decSappT);
-		debug("\n");
-		debug("Cipher Text as Big int: " + C);
-		debug("\n");
+		//BigInteger C = new BigInteger(ciphertext);
+		//BigInteger decSappT = C.modPow(d, N);
+		//debug("\n");
+		//debug("Cipher Text^d (mod N) as big int: "+decSappT);
+		//debug("\n");
+		//debug("Cipher Text as Big int: " + C);
+		//debug("\n");
 		byte[] testing = new BigInteger(ciphertext).modPow(d,N).toByteArray();// C.toByteArray();
 		
-		debug("Ouputting Big Int C as bytes: " + CryptoUtilities.toHexString(testing));
+		//debug("Ouputting Big Int C as bytes: " + CryptoUtilities.toHexString(testing));
 		//Step1 compute s||t
-		byte[] s_append_t = C.modPow(d, N).toByteArray();
-		debug("Decrypt s||t has: "+s_append_t.length*8+"bits");
+		byte[] s_append_t = new BigInteger(ciphertext).modPow(d, N).toByteArray();
+		//debug("Decrypt s||t has: "+s_append_t.length*8+"bits");
 		
 		debug("Ouputting C mod N as bytes: " + CryptoUtilities.toHexString(s_append_t));
 		
-		byte[] s = new byte[n + K1];
+		byte[] s = new byte[K-K0];
 		
 		byte[] t = new byte[K0];
 		
 		System.arraycopy(s_append_t, 0, s, 0,112);
 		System.arraycopy(s_append_t, 112, t,0, K0);
 		
+		debug("\n");
+		debug("Outputting s in bytes: " + CryptoUtilities.toHexString(s));
+		
+		debug("\n");
+		debug("Outputting t in bytes: " + CryptoUtilities.toHexString(t));
+		
+		
+		
 		byte[] H_s = H(s);
+		debug("\n");
+		debug("Outputting H_s in bytes: " + CryptoUtilities.toHexString(H_s));
 		byte[] u = new BigInteger(t).xor(new BigInteger(H_s)).toByteArray(); //xOr(t,H_s);
 		byte[] G_u = G(u);
+		debug("\n");
+		debug("Outputting G_u in bytes: " + CryptoUtilities.toHexString(G_u));
 		byte[] v = new BigInteger(s).xor(new BigInteger(G_u)).toByteArray();//xOr(s,G_u);
+		debug("\n");
+		debug("Outputting u in bytes: " + CryptoUtilities.toHexString(u));
+		debug("\n");
+		debug("Outputting v in bytes: " + CryptoUtilities.toHexString(v));
+		System.out.println("WTF");
+		debug("\n");
+		//debug("\n");
 		
 		//do some logic here to check v
 		return v;
@@ -349,11 +387,13 @@ public class RSATool {
 
 	private BigInteger set_e() {
 		int numBits = totient_n.bitCount();
-		BigInteger likely_e = new BigInteger(numBits, rnd);
+		//BigInteger likely_e = new BigInteger(numBits-1, rnd);
+		BigInteger likely_e = BigInteger.valueOf(3);
 		BigInteger gcd = totient_n.gcd(likely_e);
 
 		while (gcd.equals(BigInteger.ONE) == false) {
-			likely_e = new BigInteger(numBits, rnd);
+			//likely_e = new BigInteger(numBits-1, rnd);
+			likely_e = likely_e.add(BigInteger.valueOf(2));
 			gcd = totient_n.gcd(likely_e);
 		}
 		return likely_e;

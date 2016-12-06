@@ -62,7 +62,7 @@ public class PrimeUtil {
 	}
 
 	//TODO fill this in if required, delete otherwise
-	public static BigInteger[] euclidAlg(BigInteger A, BigInteger B){
+/*	public static BigInteger[] euclidAlg(BigInteger A, BigInteger B){
 	
 		A.gcd(B);
 		BigInteger[] arr = new BigInteger[4];
@@ -75,5 +75,5 @@ public class PrimeUtil {
 		BigInteger exp = new BigInteger(num, rand);
 		exp = exp.mod(pMinus2.add(one));
 		return exp;
-	}
+	}*/
 }
