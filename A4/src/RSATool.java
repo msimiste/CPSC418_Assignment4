@@ -209,7 +209,10 @@ public class RSATool {
 		System.arraycopy(s, 0, sAppend_t, 0, s.length);
 		System.arraycopy(t, 0, sAppend_t, s.length, t.length);
 		
-		BigInteger sApp_t = new BigInteger(sAppend_t).abs();
+		BigInteger sApp_t = new BigInteger(sAppend_t);
+		if(sApp_t.compareTo(BigInteger.valueOf(0)) == -1){
+			return encrypt(plaintext);
+		}
 		debug("\n");
 		debug("Value of s||t: " + sApp_t);
 		debug("Value of N: " + N);
@@ -327,20 +330,7 @@ public class RSATool {
 		
 		//do some logic here to check v
 		return v;
-	}
-	
-/*	private byte[] xOr(byte[] first, byte[] second){
-		byte[] output = new byte[first.length];
-		if(first.length == second.length){
-			for(int i = 0; i < output.length; i++){
-				output[i] = (byte) (first[i] ^ second[i]);
-			}
-		}
-		else{
-			return null;
-		}
-		return output;
-	}*/
+	}	
 	
 	private void initializeValues() {
 		p = set_p();
@@ -387,13 +377,13 @@ public class RSATool {
 
 	private BigInteger set_e() {
 		int numBits = totient_n.bitCount();
-		//BigInteger likely_e = new BigInteger(numBits-1, rnd);
-		BigInteger likely_e = BigInteger.valueOf(3);
+		BigInteger likely_e = new BigInteger(numBits, rnd);
+		//BigInteger likely_e = BigInteger.valueOf(3);
 		BigInteger gcd = totient_n.gcd(likely_e);
 
 		while (gcd.equals(BigInteger.ONE) == false) {
-			//likely_e = new BigInteger(numBits-1, rnd);
-			likely_e = likely_e.add(BigInteger.valueOf(2));
+			likely_e = new BigInteger(numBits, rnd);
+			//likely_e = likely_e.add(BigInteger.valueOf(2));
 			gcd = totient_n.gcd(likely_e);
 		}
 		return likely_e;
