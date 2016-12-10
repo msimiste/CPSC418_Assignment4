@@ -1,0 +1,216 @@
+\documentclass{assignment}
+
+\coursetitle{Introduction to Cryptography}
+\courselabel{CPSC 418}
+\exercisesheet{Home Work \#4}{}
+\student{Mike Simister - 10095107}
+\semester{Fall 2016}
+%\usepackage[pdftex]{graphicx}
+%\usepackage{subfigure}
+\usepackage{amsfonts}
+\usepackage[fleqn]{amsmath}
+\usepackage[normalem]{ulem}
+\usepackage{amsthm}
+\usepackage{physics}
+\usepackage[singlespacing]{setspace}
+\usepackage[normalem]{ulem}
+
+\begin{document}
+\sloppy
+
+\begin{center}
+\renewcommand{\arraystretch}{2}
+\begin{tabular}{|c|c|c|} \hline
+Problem & Marks \\ \hline \hline
+1 & \\ \hline
+2 & \\ \hline
+3 & \\ \hline
+4 & \\ \hline
+5 & \\ \hline
+6 & \\ \hline
+7 & \\ \hline \hline
+Total & \\ \hline
+\end{tabular}
+\end{center}
+\newpage
+
+\begin{flushleft}
+\begin{problemlist}
+\pbitem (Security of RSA, 15 marks)
+%\begin{problem}
+%{answer}
+\item[(a)] \hspace{1cm}\\
+\begin{align*}
+\text{We have that: } n &= pq,\text{ } \phi(n) = \phi(p)\phi(q) = (p-1)(q-1)\\
+\text{so, }\phi(n) &= pq + 1 - p - q\\
+&= n + 1 - p - q \hspace{2cm} \textbf{(b/c pq = n)}\\
+p + q &= n - \phi(n) + 1\\
+q &=n - \phi(n) - p + 1\\
+\text{since } n &= pq\\
+n &= p(n - \phi(n) - p + 1)\\
+&= p^2 - p(\phi(n) + 1)\\
+\text{which means }& p^2 - p(\phi(n) + 1) -n = 0\\
+\text{because we know n and }&\phi(n)\text{ we can solve this using the well known quadratic formula where,}\\
+a &= 1\\
+b &= (n - \phi(n) + 1)\\
+c &= n\\
+\text{making } p &= \frac{-b\pm \sqrt{b^2-4ac}}{2a}
+\end{align*}
+\item[(b)]\hspace{1cm}\\
+\begin{doublespace}
+We know that: $GCD(e_1,e_2) = 1$ so, $\exists$ $x,y$ such that $ x*e_1 + y*e_2 = 1 \pmod{n}$\\
+Using the Extended Euclidean Algorithm, we can compute $x,y$\\
+At which time we have $C_{1} * C_{2} = (M^{e_1})^{x} * (M^{e_2})^{y} = M^{e_1*x + e_2*y} = M^{1} = M$\\
+
+\end{doublespace}
+\item[(c)]\hspace{1cm}\\
+Given that this message is encrypted for all of the key owners.\\
+Also given that  $M < n_i $ for each $i$\\
+Also given that  $1 \leq i \leq k$\\
+According to the Chinese Remainder Theorem there is a unique $x < n_1 ∗
+n_2 ∗ ... ∗ n_k$ such that for each $i$ we have $x = C_i \pmod n_i$
+The CTR describes how we can compute x\\
+$M^k < n_1∗n_2∗...∗n_k$, and also satisfies these equations. So, $x = Mk$
+\item[(d)]\hspace{1cm}\\
+%\end{answer}
+%\end{problem}
+\newpage
+%\begin{problem}
+%\begin{answer}
+\pbitem (Fast RSA decryption using Chinese remaindering, 6 marks)
+\begin{align*}
+\textbf{Given that: }\\
+C &\equiv M^e \pmod{n}\\
+d_p &\equiv d( \pmod{p-1})\\
+d_q &\equiv d(\pmod{p-1})\\
+M_p &\equiv C^{d_p} \pmod{p}\\
+M_q & \equiv C^{d_q} \pmod{q}\\
+\textbf{We can say that: }\\
+ C &\equiv M^e \pmod{p}\\
+\textbf{because: }\\
+C &\equiv M^e \pmod{n} \textbf{ so, }\\
+C &= M^e + n(k) \textbf{ for some } k\\ 
+&= M^e + p(qk) \textbf{ for some } k\\
+\textbf{we can use similar logic to say that: }\\
+C &\equiv M^e \pmod{q}\\
+\textbf{so because, }\\
+d_p &\equiv d \pmod{p-1}\\
+ \textbf{we can say that: } d_p &= d + (p-1)(t) \textbf{ for some } t\\
+ \textbf{so for, } M_p \pmod{p}\\
+ M_p \equiv C^{d_p} \equiv C^{d + (p-1)(t)} &\equiv C^d * (C^{(p-1)})^{t} \equiv C^d \equiv M^{ed} \equiv M \pmod{p}\\
+\textbf{ The same can be said for }&M_q \pmod{q}\\
+\textbf{since } M_p &\equiv M \pmod{p} \textbf{ we can say that }\\
+ M_p &= M + p(k) \textbf{ for some } k\\
+ \textbf{and since } M_q &\equiv M \pmod{q} \textbf{ we can say that }\\
+ M_q &= M + p(t) \textbf{ for some } t\\ 
+\textbf{so, setting } M' &\equiv pxM_q + qyM_p \pmod{n}\\
+\textbf{and subbing for }M_q \textbf{ and } M_p\\
+M' &\equiv px(M +q(t)) + qy(M + p(k)) \pmod{pq}\\
+M' &\equiv M(px) + \text{\sout{$pxq(t)$}} + M(qy) + \text{\sout{$pqy(k)$}} \pmod{pq}\\
+M' &\equiv M(px + qy) \pmod{pq}\\
+M' &\equiv M \pmod{pq}\qed\
+\end{align*}
+%\end{answer}
+%\end{problem}
+\newpage
+\pbitem (An IND-CPA, but not IND-CCA secure version of RSA, 8 marks)\hspace{1cm}\\
+\hspace{1cm}\\
+\begin{align*}
+\textbf{Given that: }\\
+r &< n\\
+s &= r^e \pmod{n}\\
+t &= H(r) \oplus M\\
+\textbf{and given that: }\\
+\textbf{Encryption } \rightarrow C &= s||t = r^e \pmod{n} || H(r) \oplus M\\
+\textbf{Decryption } \rightarrow M &= H( s^d \pmod{n}) \oplus t\\
+&= H( r^{ed}\pmod{n}) \oplus H(r) \oplus M\\
+&= H( r\pmod{n}) \oplus H(r) \oplus M\\
+\textbf{Choosing a ciphertext of: }\\
+C &= s||t \oplus M_1\\
+\textbf{gives a decryption of: }\\
+M_i &= H( r \pmod{n} ) \oplus H(r) \oplus M_i \oplus M_1\\
+M_i &= H(r) \oplus H(r) \oplus M_i \oplus M_1\\
+M_i &= M_i \oplus M_1\\
+\textbf{Which means that we can tell with 100 } &\% \textbf{ certainty if the message is }\\ 
+ M_1 \textbf{ or } M_2 \textbf{, i.e. If it decrypts to 0, then } &\textbf{ it is } M_1 \textbf{ otherwise it is } M_2\\
+\end{align*}
+\pbitem (Attacks on the ElGamal signature scheme, 23 marks)
+%\begin{problem}
+\item[(a)]
+\item[(i)]\hspace{1cm}\\
+\hspace{3cm}\bf{We are given:} $(r,s_1), (r,s_2)$\\
+\hspace{3cm}\bf{assuming that intercepting }$(r,s_1), (r,s_2)$\\
+\hspace{3cm}\bf{means we also have also intercepted }$M_1, M_2$ \bf{then, }\\
+\begin{align*}
+s_1 - s_2 &\equiv [H(M_1||r) - xr]K^{-1} - [H(M_2||r) - xr]K^{-1} \pmod{p-1}\\
+&\equiv [H(M_1||r) - H(M_2||r)]K^{-1} \pmod{p-1}\\
+\textbf{so if we knew } K\\
+K (s_1 - s_2) &\equiv [H(M_1||r) - H(M_2||r)] \pmod{p-1}\\
+\textbf{but we know that } &\gcd{((s_1-s_2),p-1)} = 1\\
+\textbf{so we can find an inverse for }&(s_1 - s_2)\\ 
+K (s_1 - s_2)(s_1 - s_2)^{-1} &\equiv [H(M_1||r) - H(M_2||r)](s_1 - s_2)^{-1} 
+ \pmod{p-1}\\
+K &\equiv [H(M_1||r) - H(M_2||r)](s_1 - s_2)^{-1} 
+ \pmod{p-1}\\
+\textbf{giving us } &K \textbf{ in terms of things we know, mainly, }\\
+ &H(M_1||r)\textbf{, }H(M_2||r)\textbf{, }(s_1 - s_2)^{-1}  
+\end{align*}
+\item[(ii)]\hspace{1cm}\\
+\begin{align*}
+\textbf{Given that we know } &K \textbf{ and that we can re-arrange the equation}\\
+xr & =H(M,r) -ks \pmod{p-1}\\
+\textbf{Since we know } &r,k,s \textbf{ and }s H(M,r) \textbf{ and we know that } \gcd(r,(p-1)) = 1\\
+\textbf{We can find }&\textbf{an inverse for } r \textbf{ giving, }\\
+xrr^{-1} &\equiv r^{-1}(H(M,r) - ks \pmod{p-1})\\
+x &\equiv r^{-1}(H(M,r) - ks \pmod{p-1})\\
+\end{align*}
+\item[(b)]\hspace{1cm}\\
+\item[(i)]\hspace{1cm}\\
+\begin{align*}
+\textbf{We want to show that } v_1 = v_2 \textbf{ or }\\ y^{r} r^s &\equiv g^{M} \pmod{p}\\
+y^{r} r^{-rv*} &\equiv g^{M}\pmod{p}\\
+y^{r} (g^{u}y^{v})^{-rv*} &\equiv g^{M}\pmod{p}\\
+y^{r}y^{vv*-r} g^{u-rv*} &\equiv g^{M}\pmod{p}\\
+\text{\sout{$y^{r}y^{-r}$}} g^{u-rv*} &\equiv g^{M}\pmod{p}\\
+g^{su} &\equiv g^{M}\pmod{p}\\
+g^{M} &\equiv g^{M}\pmod{p}\\
+\end{align*}
+\item[(c)]\hspace{1cm}\\
+\item[(i)]\hspace{1cm}\\
+\begin{align*}
+\textbf{Given }\\
+R &\equiv rup-r(p-1) \pmod{p(p-1)}\textbf{ we can state that }\\
+R &= rup -r(p-1) + p(p-1)(k)\text{ for some } k\\
+&\textbf{taking the entire statement above } \pmod{p-1} \textbf{ we have}\\
+R &\equiv rup -\text{\sout{$r(p-1) + p(p-1)(k)$}}\pmod{p-1}\\
+&\textbf{We can re-write the equation as: }\\
+R &\equiv ru(p-1) + ru \pmod{p-1}\textbf{ giving us: }\\
+R &\equiv ru \pmod{p-1}\\
+&\textbf{So, we can again re-write the equation as: }\\
+R &= ru + (p-1)(t) \textbf{ for some t, and thus we can conclude that: }\\
+y^R &\equiv y^{ru + t(p-1)} \equiv y^{ru} \text{\sout{$(y^{t})^{p-1}$}} \pmod{p}
+\end{align*}
+\item[(ii)]\hspace{1cm}\\
+\begin{align*}
+\textbf{Given }\\
+R &\equiv rup-r(p-1) \pmod{p(p-1)}\textbf{ we can state that }\\
+R &= rup -r(p-1) + p(p-1)(k)\text{ for some } k\\
+&\textbf{taking the entire statement above } \pmod{p-1} \textbf{ we have}\\
+R &\equiv \text{\sout{$rup$}} -r(p-1) + \text{\sout{$p(p-1)(k)$}}\pmod{p}\\
+R &\equiv \text{\sout{$-rp$}} +r \pmod{p}\\
+R &\equiv r \pmod{p}\\
+&\textbf{ and given }\\
+S &\equiv su \pmod{p-1}\textbf{ we can state that }\\  
+S &= su + (p-1)(t) \textbf{ for some t}\\
+&\textbf{ giving us }\\
+R^s &\equiv R^{su + (k)(p-1)} \equiv R^{su} * \text{\sout{$(R^{k})^{(p-1)}$}} \pmod{p}\\
+&\textbf{ and from the section above, }\\
+R &\equiv r \pmod{p} \textbf{ so } R^{su} \equiv r^{su} \pmod{p}\\
+\end{align*}
+%\begin{answer}
+%[Answer]
+%\end{answer}
+%\end{problem}
+\end{problemlist}
+\end{flushleft}
+\end{document}
